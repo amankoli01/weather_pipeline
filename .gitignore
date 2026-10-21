@@ -1,13 +1,12 @@
 
-# Local datasets
+# Local data files
 data/
 
 # Python virtual environments
 .venv/
 venv/
-env/
 
-# Python cache
+# Python cache files
 __pycache__/
 *.py[cod]
 
@@ -15,5 +14,6 @@ __pycache__/
 .env
 .env.*
 
-# Google Cloud credentials
+# Google Cloud service-account credentials
 scripts/gcp-key.json
+
