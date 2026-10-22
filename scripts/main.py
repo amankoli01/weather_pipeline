@@ -20,7 +20,7 @@ DATA_FILE = ROOT / "data" / "population.csv"
 OUTPUT_FILE = ROOT / "data" / "weather_merged.csv"
 CREDENTIALS_FILE = ROOT / "scripts" / "gcp-key.json"
 
-PROJECT_ID = "weather-demographics-bootcamp"
+PROJECT_ID = "weather-demographics"
 DATASET_ID = "global_weather_data"
 TABLE_ID = "current_weather_stats"
 
