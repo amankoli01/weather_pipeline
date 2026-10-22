@@ -1,0 +1,55 @@
+
+name: Scheduled Weather Pipeline
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 * * * *"
+
+jobs:
+  update-weather:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: feature/data-ingestion
+
+      - name: Verify population CSV
+        run: |
+          echo "Current branch:"
+          git branch --show-current
+          echo "Repository root:"
+          pwd
+          echo "Root directory:"
+          ls -la
+          echo "CSV files tracked by Git:"
+          git ls-files | grep -i 'population.csv' || true
+          if [ -f "data/population.csv" ]; then
+            echo "SUCCESS: data/population.csv found"
+            head -n 3 data/population.csv
+          else
+            echo "ERROR: data/population.csv not found"
+            find . -iname '*population*.csv' -print
+            exit 1
+          fi
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run weather pipeline
+        env:
+          GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+        run: |
+          python -c 'import os, json; from google.oauth2 import service_account; key=json.loads(os.environ["GCP_SERVICE_ACCOUNT_KEY"]); open("/tmp/gcp-key.json", "w").write(json.dumps(key)); os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="/tmp/gcp-key.json"; os.execvpe("python", ["python", "scripts/main.py"], os.environ)'

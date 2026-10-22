@@ -20,7 +20,7 @@ DATA_FILE = ROOT / "data" / "population.csv"
 OUTPUT_FILE = ROOT / "data" / "weather_merged.csv"
 CREDENTIALS_FILE = ROOT / "scripts" / "gcp-key.json"
 
-PROJECT_ID = "weather-demographics-bootcamp"
+PROJECT_ID = "weather-demographics"
 DATASET_ID = "global_weather_data"
 TABLE_ID = "current_weather_stats"
 
@@ -143,7 +143,26 @@ def fetch_weather(population_df):
             wind_speed = current.get("wind_speed_10m")
 
             if temperature is None or wind_speed is None:
+                raise ValueError("Temperature or wind speed missing")           
+            temperature = current.get("temperature_2m")
+            wind_speed = current.get("wind_speed_10m")
+
+            if temperature is None or wind_speed is None:
                 raise ValueError("Temperature or wind speed missing")
+
+            if (
+                isinstance(temperature, bool)
+                or isinstance(wind_speed, bool)
+            ):
+                raise ValueError("Temperature or wind speed is invalid")
+
+            try:
+                temperature = float(temperature)
+                wind_speed = float(wind_speed)
+            except (TypeError, ValueError) as error:
+                raise ValueError(
+                    "Temperature or wind speed is not numeric"
+                ) from error
 
             weather.update({
                 "Temperature_C": temperature,
